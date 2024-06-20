@@ -1,0 +1,57 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      CONFIG_PATH: /app/config/local.yaml
+    volumes:
+      - ./config:/app/config
+    ports:
+      - "5051:5051"
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    networks:
+      - internal
+
+  cache:
+    container_name: url-storage-cache
+    image: redis:latest
+    volumes:
+      - url-db:/data
+    networks:
+      - internal
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  db:
+    container_name: url-storage-db
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - url-db:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  internal:
+
+volumes:
+  url-db:
+    name: url-db
