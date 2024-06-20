@@ -1,0 +1,19 @@
+env: local
+grpc:
+    host: localhost
+    port: 5051
+    timeout: 5s
+redis:
+    host: url-storage-cache
+    port: 6379
+    db: 0
+    password: null
+    timeout: 5s
+postgres:
+    host: url-storage-db
+    port: 5432
+    user: postgres
+    password: postgres
+    db: postgres
+    timeout: 5s
+    ssl_mode: disable
